@@ -9,7 +9,7 @@ import ImageAnalysisResultsPanel from '../components/ImageAnalysisResultsPanel';
 import AllIndiaCropRecommendations from '../components/AllIndiaCropRecommendations';
 import { useRealTimeDashboard, useRealTimeTrends } from '../hooks/useApi';
 import { ImageAnalysisResult } from '../services/api';
-import { Tractor, Map, Zap, BarChart3, Brain, Bug, Globe, Volume2, VolumeX, Languages, TrendingUp, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Truck, Map, Zap, BarChart3, Brain, Bug, Globe, Volume2, VolumeX, Languages, TrendingUp, AlertTriangle, RefreshCw } from 'lucide-react';
 
 // All Indian states data is now handled in AllIndiaCropRecommendations component
 
@@ -200,7 +200,7 @@ export const FarmerDashboardPage: React.FC = () => {
             <div className="px-6 py-4 border-b border-gray-200" style={{background: 'linear-gradient(135deg, var(--agricare-primary) 0%, var(--agricare-secondary) 100%)'}}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <Tractor className="h-8 w-8 text-white" />
+                  <Truck className="h-8 w-8 text-white" />
                   <div>
                     <h1 className="text-2xl font-heading font-semibold text-white">किसान डैशबोर्ड - Farmer Dashboard</h1>
                     <p className="text-green-100 mt-1">Your comprehensive farming companion • आपका व्यापक कृषि साथी</p>

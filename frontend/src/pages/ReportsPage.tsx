@@ -57,7 +57,7 @@ export const ReportsPage: React.FC = () => {
   const printRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = useReactToPrint({
-    contentRef: printRef,
+    content: () => printRef.current,
     documentTitle: `Agricultural Report - ${new Date().toLocaleDateString()}`,
     onAfterPrint: () => {
       console.log('Report printed successfully');
