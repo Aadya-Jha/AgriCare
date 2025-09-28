@@ -50,7 +50,8 @@ try:
     
     # Configure Flask to serve frontend if build exists
     if frontend_exists:
-        app.static_folder = frontend_build_path
+        # Important: map Flask's /static to the CRA build's /static directory
+        app.static_folder = os.path.join(frontend_build_path, 'static')
         app.static_url_path = '/static'
         
         # Add frontend serving routes to full app
@@ -59,20 +60,20 @@ try:
         @app.route('/')
         def serve_react_app():
             """Serve the React app's main page"""
-            return send_from_directory(app.static_folder, 'index.html')
+            return send_from_directory(frontend_build_path, 'index.html')
         
         @app.route('/<path:path>')
         def serve_react_routes(path):
-            """Serve React Router routes and static files"""
+            """Serve React Router routes and non-/static files from build root"""
             # Skip API routes
             if path.startswith('api/'):
                 return None  # Let Flask handle 404 for API routes
-            # Try to serve the file if it exists in static folder
+            # Try to serve the file if it exists in the build root (manifest, logos, assets, etc.)
             try:
-                return send_from_directory(app.static_folder, path)
+                return send_from_directory(frontend_build_path, path)
             except:
                 # If file doesn't exist, serve index.html for React Router
-                return send_from_directory(app.static_folder, 'index.html')
+                return send_from_directory(frontend_build_path, 'index.html')
         
         print(f"✅ Frontend integration configured with routes: {frontend_build_path}")
     else:
@@ -145,20 +146,24 @@ if not hasattr(app, '_full_app_loaded'):
     
     # React frontend serving routes (if build exists)
     if frontend_exists:
+        # Ensure Flask's /static maps to CRA's build/static
+        app.static_folder = os.path.join(frontend_build_path, 'static')
+        app.static_url_path = '/static'
+
         @app.route('/')
         def serve_react_app():
             """Serve the React app's main page"""
-            return send_from_directory(app.static_folder, 'index.html')
+            return send_from_directory(frontend_build_path, 'index.html')
         
         @app.route('/<path:path>')
         def serve_react_routes(path):
-            """Serve React Router routes"""
-            # Try to serve the file if it exists in static folder
+            """Serve React Router routes and non-/static files from build root"""
+            # Try to serve the file if it exists in the build root
             try:
-                return send_from_directory(app.static_folder, path)
+                return send_from_directory(frontend_build_path, path)
             except:
                 # If file doesn't exist, serve index.html for React Router
-                return send_from_directory(app.static_folder, 'index.html')
+                return send_from_directory(frontend_build_path, 'index.html')
                 
         @app.route('/api/')
         def api_info():
