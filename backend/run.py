@@ -252,6 +252,159 @@ if not hasattr(app, '_full_app_loaded'):
             'user': {'id': 1, 'name': 'Demo User', 'role': 'farmer'}
         })
 
+    # --------- Minimal endpoints to satisfy frontend while running in fallback mode ---------
+    @app.route('/api/dashboard/summary', methods=['GET'])
+    def dashboard_summary():
+        try:
+            from datetime import datetime, timedelta
+            import random
+
+            locations = ['Anand', 'Jhagdia', 'Kota', 'Maddur', 'Talala']
+            alert_count = random.randint(0, 3)
+
+            # Simulated averages
+            avg_health = round(random.uniform(0.55, 0.85), 2)
+            avg_ndvi = round(random.uniform(0.5, 0.8), 2)
+            avg_yield_prediction = round(random.uniform(0.8, 1.2), 2)
+
+            health_buckets = {
+                'excellent': random.randint(0, 2),
+                'good': random.randint(1, 3),
+                'fair': random.randint(0, 2),
+                'poor': random.randint(0, 2)
+            }
+
+            response = {
+                'active_fields': len(locations),
+                'total_sensors': len(locations) * 5,
+                'alerts_count': alert_count,
+                'avg_yield_prediction': avg_yield_prediction,
+                'crop_health': {
+                    'status': 'Excellent' if avg_health >= 0.8 else 'Good' if avg_health >= 0.6 else 'Fair',
+                    'ndvi': avg_ndvi,
+                    'confidence': int(avg_health * 100)
+                },
+                'soil_moisture': {
+                    'value': random.randint(35, 70),
+                    'unit': '%',
+                    'status': 'optimal',
+                    'last_updated': datetime.utcnow().isoformat() + 'Z'
+                },
+                'pest_risk': {
+                    'level': 'high' if alert_count > 2 else 'medium' if alert_count > 0 else 'low',
+                    'confidence': random.randint(70, 100),
+                    'detected_pests': ['Aphids', 'Thrips'] if alert_count else []
+                },
+                'irrigation_advice': {
+                    'recommendation': 'Increase' if avg_health < 0.5 else ('Maintain' if avg_health < 0.7 else 'Reduce'),
+                    'status': 'urgent' if avg_health < 0.5 else 'good',
+                    'reason': 'Low crop health detected' if avg_health < 0.5 else 'Crops in good condition'
+                },
+                'weather': {
+                    'temperature': random.randint(20, 35),
+                    'humidity': random.randint(40, 80),
+                    'last_updated': datetime.utcnow().isoformat() + 'Z'
+                },
+                'field_info': {
+                    'id': 1,
+                    'name': 'Main Agricultural Area',
+                    'crop_type': 'Mixed Crops',
+                    'area_hectares': len(locations) * 50
+                },
+                'health_status': health_buckets,
+                'recent_activity': [
+                    {
+                        'id': 1,
+                        'type': 'hyperspectral_analysis',
+                        'message': 'Hyperspectral analysis completed for demo dataset',
+                        'timestamp': datetime.utcnow().isoformat() + 'Z',
+                        'location': 'All'
+                    },
+                    {
+                        'id': 2,
+                        'type': 'health_update',
+                        'message': f"Average crop health score: {int(avg_health*100)}%",
+                        'timestamp': (datetime.utcnow() - timedelta(minutes=5)).isoformat() + 'Z',
+                        'location': 'Summary'
+                    }
+                ]
+            }
+            return jsonify(response)
+        except Exception as e:
+            return jsonify({'error': 'Failed to generate dashboard summary', 'message': str(e)}), 500
+
+    @app.route('/api/alerts', methods=['GET'])
+    def alerts():
+        try:
+            from datetime import datetime
+            import random
+
+            locations = ['Anand', 'Jhagdia', 'Kota', 'Maddur', 'Talala']
+            alerts = []
+            alert_id = 1
+
+            for loc in locations:
+                # Randomly add a couple of demo alerts
+                if random.random() < 0.3:
+                    alerts.append({
+                        'id': alert_id,
+                        'type': 'health',
+                        'severity': 'high' if random.random() < 0.5 else 'medium',
+                        'title': 'Low Crop Health Detected',
+                        'message': f'{loc} showing poor health',
+                        'location': loc,
+                        'coordinates': {'lat': 0, 'lng': 0},
+                        'timestamp': datetime.utcnow().isoformat() + 'Z',
+                        'recommendations': ['Increase irrigation', 'Apply nutrients']
+                    })
+                    alert_id += 1
+
+            # Sort alerts by severity then timestamp
+            severity_order = {'high': 3, 'medium': 2, 'low': 1}
+            alerts.sort(key=lambda a: (severity_order.get(a['severity'], 0), a['timestamp']), reverse=True)
+            return jsonify({'alerts': alerts})
+        except Exception as e:
+            return jsonify({'error': 'Failed to fetch alerts', 'message': str(e)}), 500
+
+    @app.route('/api/trends/<int:field_id>')
+    @app.route('/api/trends/', defaults={'field_id': 1})
+    def trends(field_id):
+        try:
+            from datetime import datetime, timedelta
+            import random
+            days = 30
+            data = []
+            now = datetime.utcnow()
+            for i in range(days-1, -1, -1):
+                date = now - timedelta(days=i)
+                base = 0.6 + (0.2 * __import__('math').sin(i/10.0)) + random.random() * 0.1
+                data.append({
+                    'timestamp': date.isoformat() + 'Z',
+                    'ndvi': max(0.2, min(0.9, base + random.random()*0.1)),
+                    'health_score': max(0.3, min(0.95, base + random.random()*0.15)),
+                    'water_stress': max(0.1, min(0.8, 0.5 - base*0.3 + random.random()*0.2)),
+                    'temperature': 25 + __import__('math').sin(i/15.0)*8 + random.random()*5,
+                    'humidity': 60 + __import__('math').cos(i/12.0)*15 + random.random()*10,
+                    'yield_prediction': max(0.6, min(1.4, base + 0.4 + random.random()*0.2))
+                })
+
+            response = {
+                'field_id': int(field_id),
+                'location': ['Anand', 'Jhagdia', 'Kota', 'Maddur', 'Talala'][int(field_id)-1 if 1 <= int(field_id) <= 5 else 0],
+                'time_period': '30_days',
+                'trends': {
+                    'soil_moisture': [{ 'timestamp': d['timestamp'], 'value': d['water_stress']*100 } for d in data],
+                    'health_score': [{ 'timestamp': d['timestamp'], 'value': d['health_score']*100 } for d in data],
+                    'ndvi': [{ 'timestamp': d['timestamp'], 'value': d['ndvi'] } for d in data],
+                    'temperature': [{ 'timestamp': d['timestamp'], 'value': d['temperature'] } for d in data],
+                    'humidity': [{ 'timestamp': d['timestamp'], 'value': d['humidity'] } for d in data],
+                    'yield_prediction': [{ 'timestamp': d['timestamp'], 'value': d['yield_prediction'] } for d in data]
+                }
+            }
+            return jsonify(response)
+        except Exception as e:
+            return jsonify({'error': 'Failed to generate trends', 'message': str(e)}), 500
+
 # Add error handlers if not in full mode
 if not hasattr(app, '_full_app_loaded'):
     @app.errorhandler(404)
