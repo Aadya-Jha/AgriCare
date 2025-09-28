@@ -1,0 +1,12 @@
+# Minimal Flask Backend for Render Deployment
+# Only essential dependencies
+
+# Flask Web Framework
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# Production WSGI Server
+gunicorn==21.2.0
+
+# Environment Configuration
+python-dotenv==1.0.0

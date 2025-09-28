@@ -18,7 +18,6 @@ sys.path.insert(0, current_dir)
 # Start with minimal Flask app for reliable deployment
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
 
 # Create minimal Flask application
 app = Flask(__name__)
@@ -26,12 +25,9 @@ app = Flask(__name__)
 # Configure for production
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'render-secret-key-2024')
 app.config['DEBUG'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///agricare.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
 CORS(app, origins=["*"])  # Allow all origins for deployment
-db = SQLAlchemy(app)
 
 # Health check route (required by Render)
 @app.route('/')
@@ -55,18 +51,16 @@ def health():
         'status': 'healthy',
         'service': 'agricare-api',
         'timestamp': os.environ.get('RENDER_GIT_COMMIT', 'production'),
-        'database': 'connected' if db else 'not configured',
-        'port': os.environ.get('PORT', 'unknown')
+        'port': os.environ.get('PORT', 'unknown'),
+        'environment': 'production'
     })
 
 @app.route('/api/status')
 def status():
     return jsonify({
         'backend': 'online',
-        'database': 'sqlite' if 'sqlite' in app.config['SQLALCHEMY_DATABASE_URI'] else 'postgresql',
         'features': {
             'basic_api': 'enabled',
-            'database': 'enabled',
             'cors': 'enabled',
             'authentication': 'available',
             'file_upload': 'limited',
@@ -74,7 +68,8 @@ def status():
             'ml_models': 'disabled',
             'matlab': 'disabled'
         },
-        'environment': 'production'
+        'environment': 'production',
+        'port': os.environ.get('PORT', 'unknown')
     })
 
 # Simple sensor data endpoint
@@ -109,20 +104,13 @@ def not_found(error):
 def internal_error(error):
     return jsonify({'error': 'Internal server error', 'message': 'Please check logs'}), 500
 
-# Initialize database tables
-with app.app_context():
-    try:
-        db.create_all()
-        print("📊 Database tables created successfully")
-    except Exception as e:
-        print(f"⚠️ Database initialization warning: {e}")
+# No database initialization needed for minimal deployment
 
 # Application startup logging
 port = int(os.getenv('PORT', 10000))
 print(f"🌾 Starting AgriCare API Server")
 print(f"🔧 Environment: production")
 print(f"🌐 Port: {port}")
-print(f"🗄️ Database: {app.config['SQLALCHEMY_DATABASE_URI'][:50]}...")
 print(f"🚀 AgriCare API loaded for production (Gunicorn)")
 
 # Export app for Gunicorn WSGI server
