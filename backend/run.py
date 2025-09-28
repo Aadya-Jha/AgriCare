@@ -23,6 +23,17 @@ socketio = None
 
 print("🌾 Attempting to load full AgriCare application...")
 
+# Configure Flask to serve React frontend
+# Prefer build inside backend/frontend/build, fall back to repo-root/frontend/build
+candidate_backend_build = os.path.join(current_dir, 'frontend', 'build')
+candidate_root_build = os.path.join(parent_dir, 'frontend', 'build')
+frontend_build_path = candidate_backend_build if os.path.exists(candidate_backend_build) else candidate_root_build
+frontend_exists = os.path.exists(frontend_build_path)
+print(f"📎 Frontend build path (selected): {frontend_build_path}")
+print(f"   ├─ backend path exists: {os.path.exists(candidate_backend_build)} -> {candidate_backend_build}")
+print(f"   └─ root path exists:    {os.path.exists(candidate_root_build)} -> {candidate_root_build}")
+print(f"🔍 Frontend build exists: {frontend_exists}")
+
 try:
     # Import the full application factory
     from app import create_app
@@ -37,6 +48,36 @@ try:
     else:
         app = app_result
     
+    # Configure Flask to serve frontend if build exists
+    if frontend_exists:
+        app.static_folder = frontend_build_path
+        app.static_url_path = '/static'
+        
+        # Add frontend serving routes to full app
+        from flask import send_from_directory
+        
+        @app.route('/')
+        def serve_react_app():
+            """Serve the React app's main page"""
+            return send_from_directory(app.static_folder, 'index.html')
+        
+        @app.route('/<path:path>')
+        def serve_react_routes(path):
+            """Serve React Router routes and static files"""
+            # Skip API routes
+            if path.startswith('api/'):
+                return None  # Let Flask handle 404 for API routes
+            # Try to serve the file if it exists in static folder
+            try:
+                return send_from_directory(app.static_folder, path)
+            except:
+                # If file doesn't exist, serve index.html for React Router
+                return send_from_directory(app.static_folder, 'index.html')
+        
+        print(f"✅ Frontend integration configured with routes: {frontend_build_path}")
+    else:
+        print("⚠️ No frontend build found, serving API only")
+    
     # Mark that full app was loaded
     app._full_app_loaded = True
     print("✅ Full application loaded successfully with all features!")
@@ -46,14 +87,21 @@ except ImportError as e:
     print("🔄 Loading simplified app with available features...")
     
     # Fallback to simplified app
-    from flask import Flask, jsonify, request
+    from flask import Flask, jsonify, request, send_from_directory
     from flask_cors import CORS
     
     try:
         from flask_sqlalchemy import SQLAlchemy
         from simple_config import config
         
-        app = Flask(__name__)
+        # Configure Flask with frontend serving capability
+        if frontend_exists:
+            app = Flask(__name__, static_folder=frontend_build_path, static_url_path='/static')
+            print(f"✅ Flask configured to serve frontend from: {frontend_build_path}")
+        else:
+            app = Flask(__name__)
+            print("⚠️ No frontend build found, serving API only")
+            
         config_name = os.getenv('FLASK_ENV', 'production')
         app.config.from_object(config[config_name])
         config[config_name].init_app(app)
@@ -63,43 +111,90 @@ except ImportError as e:
         
     except ImportError:
         # Ultimate fallback - minimal Flask only
-        app = Flask(__name__)
+        if frontend_exists:
+            app = Flask(__name__, static_folder=frontend_build_path, static_url_path='/static')
+            print(f"✅ Minimal Flask app with frontend serving configured")
+        else:
+            app = Flask(__name__)
+            print("✅ Minimal Flask app loaded (API only)")
+            
         app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'fallback-key')
         CORS(app, origins=["*"])
         db = None
-        print("✅ Minimal Flask app loaded")
 
 except Exception as e:
     print(f"❌ Error loading application: {e}")
     # Ultimate fallback
-    from flask import Flask, jsonify
+    from flask import Flask, jsonify, send_from_directory
     from flask_cors import CORS
     
-    app = Flask(__name__)
+    if frontend_exists:
+        app = Flask(__name__, static_folder=frontend_build_path, static_url_path='/static')
+        print("🚨 Emergency fallback app with frontend loaded")
+    else:
+        app = Flask(__name__)
+        print("🚨 Emergency fallback app loaded (API only)")
+        
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'emergency-key')
     CORS(app, origins=["*"])
     db = None
-    print("🚨 Emergency fallback app loaded")
 
 # Add basic routes if not already present (for fallback modes)
 if not hasattr(app, '_full_app_loaded'):
     print("🛣️ Adding basic API routes for fallback mode...")
     
-    @app.route('/')
-    def root():
-        return jsonify({
-            'message': 'AgriCare API Server',
-            'version': '1.0.0',
-            'status': 'online',
-            'environment': os.getenv('FLASK_ENV', 'production'),
-            'mode': 'fallback' if 'db' not in locals() or db is None else 'simplified',
-            'endpoints': {
-                'health': '/api/health',
-                'status': '/api/status',
-                'sensors': '/api/sensors',
-                'auth': '/api/auth'
-            }
-        })
+    # React frontend serving routes (if build exists)
+    if frontend_exists:
+        @app.route('/')
+        def serve_react_app():
+            """Serve the React app's main page"""
+            return send_from_directory(app.static_folder, 'index.html')
+        
+        @app.route('/<path:path>')
+        def serve_react_routes(path):
+            """Serve React Router routes"""
+            # Try to serve the file if it exists in static folder
+            try:
+                return send_from_directory(app.static_folder, path)
+            except:
+                # If file doesn't exist, serve index.html for React Router
+                return send_from_directory(app.static_folder, 'index.html')
+                
+        @app.route('/api/')
+        def api_info():
+            """API information endpoint"""
+            return jsonify({
+                'message': 'AgriCare API Server',
+                'version': '1.0.0',
+                'status': 'online',
+                'environment': os.getenv('FLASK_ENV', 'production'),
+                'mode': 'fallback' if 'db' not in locals() or db is None else 'simplified',
+                'frontend': 'integrated',
+                'endpoints': {
+                    'health': '/api/health',
+                    'status': '/api/status',
+                    'sensors': '/api/sensors',
+                    'auth': '/api/auth'
+                }
+            })
+    else:
+        # API-only mode when no frontend build
+        @app.route('/')
+        def root():
+            return jsonify({
+                'message': 'AgriCare API Server',
+                'version': '1.0.0',
+                'status': 'online',
+                'environment': os.getenv('FLASK_ENV', 'production'),
+                'mode': 'fallback' if 'db' not in locals() or db is None else 'simplified',
+                'frontend': 'not available',
+                'endpoints': {
+                    'health': '/api/health',
+                    'status': '/api/status',
+                    'sensors': '/api/sensors',
+                    'auth': '/api/auth'
+                }
+            })
 
     @app.route('/api/health')
     def health():

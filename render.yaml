@@ -28,8 +28,8 @@ services:
     name: agricare-backend-api
     env: python
     plan: free
-    buildCommand: pip install --upgrade pip setuptools wheel && pip install -r backend/requirements.txt
-    startCommand: gunicorn backend.run:app --bind 0.0.0.0:$PORT
+    buildCommand: cd frontend && npm install && npm run build && cd ../backend && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt && mkdir -p frontend && rm -rf frontend/build && cp -r ../frontend/build frontend/build
+    startCommand: cd backend && gunicorn run:app --bind 0.0.0.0:$PORT
     healthCheckPath: /api/health
     envVars:
       - key: PYTHON_VERSION
