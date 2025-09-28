@@ -1,0 +1,2 @@
+# Minimal requirements for static site deployment
+# This file is required by Render but we're serving a Flutter web build

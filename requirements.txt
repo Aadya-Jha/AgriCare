@@ -1,0 +1,2 @@
+# Simple Python server for React build
+# No additional packages needed

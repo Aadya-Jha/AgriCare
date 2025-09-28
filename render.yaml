@@ -1,12 +1,36 @@
 services:
+  # Option 1: Deploy React Frontend (Recommended)
   - type: web
-    name: agricare
+    name: agricare-react-frontend
     env: python
-    buildCommand: |
-      pip install --upgrade pip setuptools wheel
-      pip install -r backend/requirements.txt
-    startCommand: gunicorn --worker-class eventlet -w 1 backend.app:app
+    plan: free
+    buildCommand: chmod +x build-react.sh && ./build-react.sh
+    startCommand: python server.py
+    healthCheckPath: /
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.10.13
+      - key: PORT
+        sync: false
+      - key: NODE_VERSION
+        value: "16"
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
 
+  # Option 2: Deploy Backend API Only
+  # - type: web
+  #   name: agricare-backend
+  #   env: python
+  #   buildCommand: |
+  #     pip install --upgrade pip setuptools wheel
+  #     pip install -r backend/requirements.txt
+  #   startCommand: cd backend && python app.py
+  #   envVars:
+  #     - key: PYTHON_VERSION
+  #       value: 3.10.13
