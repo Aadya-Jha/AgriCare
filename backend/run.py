@@ -558,6 +558,104 @@ if not hasattr(app, '_full_app_loaded'):
             }
         })
 
+    # --------- Hyperspectral simulation endpoints ---------
+    @app.route('/api/hyperspectral/health', methods=['GET'])
+    def hyperspectral_health():
+        from datetime import datetime
+        return jsonify({
+            'service': 'agricare-hyperspectral',
+            'status': 'ok',
+            'matlab_engine_available': False,
+            'simulation_mode': True,
+            'supported_locations': ['Anand','Jhagdia','Kota','Maddur','Talala'],
+            'wavelength_range': [400, 2500],
+            'hyperspectral_bands': 424,
+            'timestamp': datetime.utcnow().isoformat() + 'Z'
+        })
+
+    @app.route('/api/hyperspectral/locations', methods=['GET'])
+    def hyperspectral_locations():
+        return jsonify({
+            'locations': ['Anand','Jhagdia','Kota','Maddur','Talala','Hisar','Ludhiana']
+        })
+
+    @app.route('/api/hyperspectral/process-image', methods=['POST'])
+    def hyperspectral_process_image():
+        from datetime import datetime
+        file = request.files.get('image') or request.files.get('file')
+        if not file:
+            return jsonify({'status': 'error', 'message': 'No image provided'}), 400
+        # Simulate a processed result in the shape expected by the frontend
+        results = {
+            'status': 'success',
+            'input_image': file.filename,
+            'conversion_method': 'Simulated RGB->HSI model',
+            'health_analysis': {
+                'overall_health_score': 0.78,
+                'dominant_health_status': 'Good',
+                'confidence': 0.88,
+                'excellent_percent': 22.5,
+                'good_percent': 55.1,
+                'fair_percent': 18.6,
+                'poor_percent': 3.8,
+                'pixels_analyzed': 120345
+            },
+            'vegetation_indices': {
+                'ndvi': { 'mean': 0.61, 'std': 0.08, 'min': 0.22, 'max': 0.86 },
+                'savi': { 'mean': 0.48, 'std': 0.06, 'min': 0.15, 'max': 0.72 },
+                'evi': { 'mean': 0.37, 'std': 0.05, 'min': 0.12, 'max': 0.58 },
+                'gndvi': { 'mean': 0.43, 'std': 0.07, 'min': 0.10, 'max': 0.69 },
+                'vegetation_coverage': 74.2
+            },
+            'hyperspectral_bands': 424,
+            'wavelength_range': [400, 2500],
+            'analysis_timestamp': datetime.utcnow().isoformat() + 'Z',
+            'recommendations': [
+                'Maintain current irrigation schedule',
+                'Spot check for pests in low-health patches'
+            ],
+            'original_filename': file.filename,
+            'file_size_mb': round(len(file.read()) / (1024*1024), 3)
+        }
+        return jsonify({ 'status': 'success', 'results': results })
+
+    @app.route('/api/hyperspectral/predict-location/<location>', methods=['GET'])
+    def hyperspectral_predict_location(location):
+        from datetime import datetime
+        return jsonify({
+            'location': location,
+            'coordinates': [23.0, 77.0],
+            'state': 'Demo',
+            'climate': 'Semi-arid',
+            'major_crops': ['Wheat','Cotton','Maize'],
+            'health_metrics': {
+                'overall_health_score': 0.72,
+                'ndvi': 0.58,
+                'savi': 0.44,
+                'evi': 0.33,
+                'water_stress_index': 0.35,
+                'chlorophyll_content': 0.66,
+                'predicted_yield': 1.12,
+                'pest_risk_score': 0.32,
+                'disease_risk_score': 0.28,
+                'recommendations': ['Irrigate lightly', 'Apply nitrogen if needed']
+            },
+            'analysis_timestamp': datetime.utcnow().isoformat() + 'Z'
+        })
+
+    @app.route('/api/hyperspectral/model-info', methods=['GET'])
+    def hyperspectral_model_info():
+        from datetime import datetime
+        return jsonify({
+            'model_type': 'Simulated CNN',
+            'supported_locations': ['Anand','Jhagdia','Kota','Maddur','Talala'],
+            'wavelength_range': [400, 2500],
+            'num_bands': 424,
+            'health_classes': ['Excellent','Good','Fair','Poor'],
+            'last_updated': datetime.utcnow().isoformat() + 'Z',
+            'matlab_available': False
+        })
+
 # Add error handlers if not in full mode
 if not hasattr(app, '_full_app_loaded'):
     @app.errorhandler(404)
