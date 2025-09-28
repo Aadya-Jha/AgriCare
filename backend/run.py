@@ -126,7 +126,7 @@ except ImportError as e:
 except Exception as e:
     print(f"❌ Error loading application: {e}")
     # Ultimate fallback
-    from flask import Flask, jsonify, send_from_directory
+    from flask import Flask, jsonify, request, send_from_directory
     from flask_cors import CORS
     
     if frontend_exists:
