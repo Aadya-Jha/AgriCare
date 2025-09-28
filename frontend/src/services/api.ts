@@ -336,8 +336,17 @@ class ApiService {
   private token: string | null = null;
 
   constructor() {
-    // Backend running on Flask (port 5000) - all features combined
-    this.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    // Prefer environment override; otherwise default to same-origin API
+    // This avoids localhost references in production (Render)
+    const envBase = process.env.REACT_APP_API_URL?.replace(/\/$/, '');
+    if (envBase) {
+      this.baseURL = envBase;
+    } else if (typeof window !== 'undefined') {
+      this.baseURL = `${window.location.origin}/api`;
+    } else {
+      this.baseURL = '/api';
+    }
+
     this.token = localStorage.getItem('auth_token');
     
     // Clean up old backend switching preferences
@@ -508,12 +517,13 @@ class ApiService {
   }
 
   async getAlerts(): Promise<{ alerts: Alert[] }> {
-    return this.requestWithoutAuth<{ alerts: Alert[] }>('/dashboard/alerts');
+    // Backend exposes alerts at /api/alerts
+    return this.requestWithoutAuth<{ alerts: Alert[] }>('/alerts');
   }
 
   async getTrends(fieldId: number = 1): Promise<TrendData> {
-    // Use demo trends endpoint for public access
-    return this.requestWithoutAuth<TrendData>('/dashboard/trends');
+    // Trends available at /api/trends (optionally /api/trends/:field_id)
+    return this.requestWithoutAuth<TrendData>('/trends');
   }
 
   // Request method without authentication headers
