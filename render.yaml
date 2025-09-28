@@ -23,14 +23,21 @@ services:
         name: Referrer-Policy
         value: strict-origin-when-cross-origin
 
-  # Option 2: Deploy Backend API Only
-  # - type: web
-  #   name: agricare-backend
-  #   env: python
-  #   buildCommand: |
-  #     pip install --upgrade pip setuptools wheel
-  #     pip install -r backend/requirements.txt
-  #   startCommand: cd backend && python app.py
-  #   envVars:
-  #     - key: PYTHON_VERSION
-  #       value: 3.10.13
+  # Option 2: Deploy Backend API Only (RECOMMENDED - FIXED)
+  - type: web
+    name: agricare-backend-api
+    env: python
+    plan: free
+    buildCommand: |
+      pip install --upgrade pip setuptools wheel
+      pip install -r backend/requirements-render.txt
+    startCommand: cd backend && python run.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: PORT
+        sync: false
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
