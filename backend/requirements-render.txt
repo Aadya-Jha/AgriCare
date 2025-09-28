@@ -1,4 +1,6 @@
-# Lightweight Flask Backend for Render Deployment
+# LIGHTWEIGHT Flask Backend for Render Deployment
+# Heavy dependencies removed to prevent build failures on Python 3.13
+
 # Flask and Web Framework
 Flask==3.0.0
 Flask-CORS==4.0.0
@@ -6,13 +8,13 @@ Flask-SQLAlchemy==3.1.1
 Flask-JWT-Extended==4.6.0
 Werkzeug==3.0.1
 
-# Database
+# Database (PostgreSQL optional, SQLite default)
 psycopg2-binary==2.9.9
 
 # Environment and Configuration
 python-dotenv==1.0.0
 
-# Basic Data Processing (compatible versions)
+# Basic Data Processing (compatible versions only)
 numpy==1.26.4
 pandas==2.1.4
 
@@ -26,14 +28,6 @@ firebase-admin==6.5.0
 python-dateutil==2.8.2
 pytz==2024.1
 
-# Build essentials
+# Build essentials for compatibility
 setuptools>=69.0.0
 wheel>=0.42.0
-
-# Optional: Remove heavy dependencies for basic API functionality
-# opencv-python  # Removed - causes build issues
-# Pillow         # Removed - causes build issues  
-# tensorflow     # Removed - too heavy for free tier
-# torch          # Removed - too heavy for free tier
-# geopandas      # Removed - has heavy dependencies
-# matplotlib     # Removed - causes build issues

@@ -1,52 +1,50 @@
-# Flask and Web Framework
-Flask==2.3.3
-Flask-CORS==4.0.0
-Flask-SQLAlchemy==3.0.5
-Flask-Migrate==4.0.5
-Flask-JWT-Extended==4.4.4
-Werkzeug==2.3.6
-Flask-SocketIO==5.3.4
+# LIGHTWEIGHT Flask Backend for Render Deployment
+# Heavy dependencies removed to prevent build failures on Python 3.13
 
-# Database
-psycopg2-binary==2.9.7
-SQLAlchemy==2.0.20
+# Flask and Web Framework
+Flask==3.0.0
+Flask-CORS==4.0.0
+Flask-SQLAlchemy==3.1.1
+Flask-JWT-Extended==4.6.0
+Werkzeug==3.0.1
+
+# Database (PostgreSQL optional, SQLite default)
+psycopg2-binary==2.9.9
 
 # Environment and Configuration
 python-dotenv==1.0.0
 
-# Data Processing (lightweight only)
+# Basic Data Processing (compatible versions only)
 numpy==1.26.4
-pandas==2.0.3
-
-# Image Processing (basic, avoids GPU libs)
-opencv-python==4.8.0.76
-Pillow==10.0.0
-
-# Geospatial Data
-shapely==2.0.1
-geopandas==0.13.2
-folium==0.14.0
-
-# Report Generation
-reportlab==4.0.4
-openpyxl==3.1.2
-
-# Firebase and Notifications
-firebase-admin==6.2.0
-pyfcm==1.5.4
+pandas==2.1.4
 
 # API and HTTP
 requests==2.31.0
-urllib3==1.26.16
+
+# Firebase (lightweight)
+firebase-admin==6.5.0
 
 # Utilities
 python-dateutil==2.8.2
-pytz==2023.3
-celery==5.3.1
-redis==4.6.0
+pytz==2024.1
 
-# Build tools (ensure compatibility)
-setuptools==68.0.0
-wheel==0.41.2
-cython==0.29.36
+# Build essentials for compatibility
+setuptools>=69.0.0
+wheel>=0.42.0
+
+# REMOVED FOR DEPLOYMENT (causing build failures):
+# opencv-python==4.8.0.76    # Causes Python 3.13 build errors
+# Pillow==10.0.0             # Causes setuptools KeyError: '__version__'
+# tensorflow                 # Too heavy for free tier
+# torch                      # Too heavy for free tier
+# scikit-learn               # Heavy dependency
+# matplotlib                 # Causes build issues
+# geopandas                  # Has complex geospatial dependencies
+# shapely                    # Geographic library not needed for basic API
+# folium                     # Map visualization not needed
+# reportlab                  # PDF generation not needed
+# openpyxl                   # Excel not needed
+# celery                     # Background tasks not needed
+# redis                      # Not available in free tier
+# cython                     # Causes compilation issues
 
