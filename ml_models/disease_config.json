@@ -1,0 +1,86 @@
+{
+  "class_names": [
+    "Healthy",
+    "Bacterial_Blight",
+    "Brown_Spot",
+    "Leaf_Blast",
+    "Tungro",
+    "Pest_Damage",
+    "Nutrient_Deficiency",
+    "Water_Stress"
+  ],
+  "confidence_threshold": 0.7,
+  "image_size": [
+    224,
+    224
+  ],
+  "disease_classes": {
+    "0": "Healthy",
+    "1": "Bacterial_Blight",
+    "2": "Brown_Spot",
+    "3": "Leaf_Blast",
+    "4": "Tungro",
+    "5": "Pest_Damage",
+    "6": "Nutrient_Deficiency",
+    "7": "Water_Stress"
+  },
+  "crop_diseases": {
+    "Rice": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "Wheat": [
+      0,
+      1,
+      2,
+      5,
+      6,
+      7
+    ],
+    "Maize": [
+      0,
+      1,
+      5,
+      6,
+      7
+    ],
+    "Cotton": [
+      0,
+      1,
+      5,
+      6,
+      7
+    ],
+    "Tomato": [
+      0,
+      1,
+      2,
+      5,
+      6,
+      7
+    ],
+    "Potato": [
+      0,
+      1,
+      2,
+      5,
+      6,
+      7
+    ],
+    "General": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ]
+  },
+  "last_updated": "2025-09-25T20:03:52.328708",
+  "model_version": "2.1"
+}

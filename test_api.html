@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyperspectral API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Hyperspectral API Test Dashboard</h1>
+    
+    <div class="test-section">
+        <h3>General Health Check</h3>
+        <button onclick="testGeneralHealth()">Test /api/health</button>
+        <div id="generalHealthResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Hyperspectral Health Check</h3>
+        <button onclick="testHyperspectralHealth()">Test /api/hyperspectral/health</button>
+        <div id="hyperspectralHealthResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Get Locations</h3>
+        <button onclick="testGetLocations()">Test /api/hyperspectral/locations</button>
+        <div id="locationsResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Location Prediction</h3>
+        <button onclick="testLocationPrediction()">Test /api/hyperspectral/predict-location/Anand</button>
+        <div id="locationPredictionResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Image Upload Test</h3>
+        <input type="file" id="imageFile" accept="image/*">
+        <button onclick="testImageUpload()">Test Image Processing</button>
+        <div id="imageUploadResult"></div>
+    </div>
+
+    <script>
+        const baseURL = 'http://localhost:3001/api';
+        
+        async function makeRequest(url, options = {}) {
+            try {
+                console.log('Making request to:', url);
+                const response = await fetch(url, options);
+                const data = await response.json();
+                return { success: true, status: response.status, data };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+        
+        function displayResult(containerId, result) {
+            const container = document.getElementById(containerId);
+            const isSuccess = result.success && result.status < 400;
+            
+            container.className = isSuccess ? 'success' : 'error';
+            container.innerHTML = `
+                <h4>${isSuccess ? '✅ Success' : '❌ Error'}</h4>
+                ${result.success ? 
+                    `<p>Status: ${result.status}</p><pre>${JSON.stringify(result.data, null, 2)}</pre>` :
+                    `<p>Error: ${result.error}</p>`
+                }
+            `;
+        }
+        
+        async function testGeneralHealth() {
+            const result = await makeRequest(`${baseURL}/health`);
+            displayResult('generalHealthResult', result);
+        }
+        
+        async function testHyperspectralHealth() {
+            const result = await makeRequest(`${baseURL}/hyperspectral/health`);
+            displayResult('hyperspectralHealthResult', result);
+        }
+        
+        async function testGetLocations() {
+            const result = await makeRequest(`${baseURL}/hyperspectral/locations`);
+            displayResult('locationsResult', result);
+        }
+        
+        async function testLocationPrediction() {
+            const result = await makeRequest(`${baseURL}/hyperspectral/predict-location/Anand`);
+            displayResult('locationPredictionResult', result);
+        }
+        
+        async function testImageUpload() {
+            const fileInput = document.getElementById('imageFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                displayResult('imageUploadResult', { success: false, error: 'Please select a file first' });
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            const result = await makeRequest(`${baseURL}/hyperspectral/process-image`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            displayResult('imageUploadResult', result);
+        }
+    </script>
+</body>
+</html>

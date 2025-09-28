@@ -1,0 +1,316 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* AgriCare Color Palette */
+:root {
+  --agricare-primary: #557153;
+  --agricare-secondary: #7D8F69;
+  --agricare-sage: #A9AF7E;
+  --agricare-light: #E6E5A3;
+}
+
+/* Custom Animations */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes slideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(85, 113, 83, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(85, 113, 83, 0.6);
+  }
+}
+
+/* Landing Page Animations */
+.hero-content {
+  animation: fadeInUp 1s ease-out;
+}
+
+.hero-image {
+  animation: slideInRight 1s ease-out 0.3s both;
+}
+
+.floating-card {
+  animation: float 3s ease-in-out infinite;
+}
+
+.feature-card {
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+.stat-card {
+  animation: scaleIn 0.6s ease-out both;
+}
+
+.testimonial-card {
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+.benefit-card {
+  animation: fadeInUp 0.8s ease-out both;
+}
+
+.cta-primary:hover {
+  animation: glow 1.5s ease-in-out infinite;
+}
+
+/* Dashboard Animations */
+.animate-fade-in {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.card {
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.6s ease-out both;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Gradient backgrounds */
+.bg-agricare-gradient {
+  background: linear-gradient(135deg, var(--agricare-primary) 0%, var(--agricare-secondary) 100%);
+}
+
+.bg-agricare-light-gradient {
+  background: linear-gradient(135deg, var(--agricare-sage) 0%, var(--agricare-light) 100%);
+}
+
+/* Smooth transitions for interactive elements */
+* {
+  scroll-behavior: smooth;
+}
+
+button, a {
+  transition: all 0.3s ease;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--agricare-light);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--agricare-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--agricare-secondary);
+}
+
+/* Floating Elements for Auth Pages */
+.floating-elements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.floating-element {
+  position: absolute;
+  font-size: 2rem;
+  animation: float 6s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+.floating-element.delay-0 {
+  top: 20%;
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.floating-element.delay-1 {
+  top: 60%;
+  left: 80%;
+  animation-delay: 1s;
+}
+
+.floating-element.delay-2 {
+  top: 80%;
+  left: 30%;
+  animation-delay: 2s;
+}
+
+.floating-element.delay-3 {
+  top: 40%;
+  left: 70%;
+  animation-delay: 3s;
+}
+
+.floating-element.delay-4 {
+  top: 10%;
+  left: 60%;
+  animation-delay: 4s;
+}
+
+.floating-element.delay-5 {
+  top: 70%;
+  left: 10%;
+  animation-delay: 5s;
+}
+
+/* Enhanced Float Animation */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Page Background Patterns */
+.page-background {
+  position: relative;
+  overflow: hidden;
+}
+
+.page-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 20%, var(--agricare-light) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, var(--agricare-sage) 0%, transparent 50%),
+              radial-gradient(circle at 40% 40%, var(--agricare-secondary) 0%, transparent 30%);
+  opacity: 0.03;
+  pointer-events: none;
+}
+
+/* Particle Effects */
+@keyframes particleFloat {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  25% {
+    transform: translateY(-20px) translateX(10px);
+  }
+  50% {
+    transform: translateY(0) translateX(-10px);
+  }
+  75% {
+    transform: translateY(20px) translateX(10px);
+  }
+}
+
+.particle {
+  animation: particleFloat 8s ease-in-out infinite;
+  opacity: 0.1;
+}
+
+/* Wave Animation */
+@keyframes wave {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-25px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.wave {
+  animation: wave 10s ease-in-out infinite;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+@layer base {
+  body {
+    margin: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    @apply bg-gray-50 text-gray-900;
+  }
+
+  code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+      monospace;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-agri-green-500 hover:bg-agri-green-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-agri-green-500 focus:ring-offset-2;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-soft p-6 transition-shadow duration-200 hover:shadow-medium;
+  }
+  
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-agri-green-500 focus:border-agri-green-500 transition-colors duration-200;
+  }
+}
