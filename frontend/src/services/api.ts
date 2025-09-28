@@ -356,12 +356,17 @@ class ApiService {
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     
+    const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+    const headers: Record<string, any> = {
+      ...(this.token && { Authorization: `Bearer ${this.token}` }),
+      ...options.headers,
+    };
+    if (!isFormData) {
+      headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+    }
+
     const config: RequestInit = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
-        ...options.headers,
-      },
+      headers,
       ...options,
     };
 
@@ -530,11 +535,16 @@ class ApiService {
   private async requestWithoutAuth<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     
+    const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+    const headers: Record<string, any> = {
+      ...options.headers,
+    };
+    if (!isFormData) {
+      headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+    }
+
     const config: RequestInit = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers,
       ...options,
     };
 
