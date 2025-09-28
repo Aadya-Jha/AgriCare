@@ -163,6 +163,8 @@ dist
 # Gatsby files
 .cache/
 public
+# Allow the React app's public folder (for CRA build) to be committed
+!frontend/public/**
 
 # Storybook build outputs
 .out
