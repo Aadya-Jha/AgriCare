@@ -31,3 +31,7 @@ pytz==2024.1
 # Build essentials for compatibility
 setuptools>=69.0.0
 wheel>=0.42.0
+
+# Production WSGI Server
+gunicorn==21.2.0
+eventlet==0.33.3

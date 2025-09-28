@@ -31,7 +31,7 @@ services:
     buildCommand: |
       pip install --upgrade pip setuptools wheel
       pip install -r backend/requirements-render.txt
-    startCommand: cd backend && python run.py
+    startCommand: cd backend && gunicorn --worker-class eventlet -w 2 --bind 0.0.0.0:$PORT run:app
     envVars:
       - key: PYTHON_VERSION
         value: "3.11.9"

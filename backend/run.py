@@ -116,13 +116,20 @@ with app.app_context():
     except Exception as e:
         print(f"⚠️ Database initialization warning: {e}")
 
+# Export app for Gunicorn WSGI server
+# This allows 'gunicorn run:app' to find the Flask app
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 10000))
     print(f"🌾 Starting AgriCare API Server on port {port}")
     print(f"🔧 Environment: {config_name}")
     print(f"🗄️ Database: {app.config['SQLALCHEMY_DATABASE_URI'][:50]}...")
     
+    # Flask development server (only when run directly)
     app.run(host='0.0.0.0', port=port, debug=(config_name == 'development'))
+else:
+    # Gunicorn will use this when deployed
+    print(f"🚀 AgriCare API loaded for production (Gunicorn)")
+    print(f"📊 Environment: {config_name}")
 
 # Legacy compatibility (if needed)
 try:

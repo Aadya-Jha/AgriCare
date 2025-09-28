@@ -32,6 +32,10 @@ pytz==2024.1
 setuptools>=69.0.0
 wheel>=0.42.0
 
+# Production WSGI Server
+gunicorn==21.2.0
+eventlet==0.33.3
+
 # REMOVED FOR DEPLOYMENT (causing build failures):
 # opencv-python==4.8.0.76    # Causes Python 3.13 build errors
 # Pillow==10.0.0             # Causes setuptools KeyError: '__version__'
