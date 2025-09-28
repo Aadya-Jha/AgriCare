@@ -34,6 +34,8 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: "3.11.9"
+      - key: NODE_VERSION
+        value: "18.19.0"
       - key: PORT
         sync: false
       - key: FLASK_ENV
