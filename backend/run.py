@@ -405,6 +405,159 @@ if not hasattr(app, '_full_app_loaded'):
         except Exception as e:
             return jsonify({'error': 'Failed to generate trends', 'message': str(e)}), 500
 
+    # --------- Image Analysis minimal endpoints ---------
+    @app.route('/api/image-analysis/health', methods=['GET'])
+    def image_analysis_health():
+        from datetime import datetime
+        return jsonify({
+            'status': 'ok',
+            'service': 'agricare-image-analysis',
+            'model_available': True,
+            'simulation_mode': True,
+            'supported_formats': ['jpg', 'jpeg', 'png', 'tiff'],
+            'max_file_size': '16MB',
+            'supported_crops': ['Rice','Wheat','Maize','Cotton','Tomato','General'],
+            'detectable_conditions': ['Blight','Rust','Leaf Spot','Pest Damage','Nutrient Deficiency'],
+            'processing_capabilities': ['classification','segmentation','feature_extraction'],
+            'timestamp': datetime.utcnow().isoformat() + 'Z'
+        })
+
+    @app.route('/api/image-analysis/analyze', methods=['POST'])
+    def image_analysis_analyze():
+        try:
+            from datetime import datetime
+            file = request.files.get('image') or request.files.get('file')
+            crop_type = request.form.get('crop_type', 'General')
+            if not file:
+                return jsonify({'error': 'No image provided'}), 400
+
+            # Minimal simulated result compatible with frontend
+            result = {
+                'status': 'success',
+                'crop_type': crop_type,
+                'analysis_summary': {
+                    'primary_detection': {
+                        'disease': 'Aphid Infestation',
+                        'confidence': 0.86,
+                        'description': 'Possible pest damage detected on leaves',
+                        'recommended_actions': [
+                            'Apply recommended pesticide',
+                            'Monitor affected areas for 72 hours'
+                        ]
+                    },
+                    'all_detections': [
+                        {'disease': 'Leaf Spot', 'confidence': 0.62, 'description': 'Spotted leaf patterns', 'recommended_actions': ['Remove infected leaves']}
+                    ],
+                    'overall_health_score': 0.78,
+                    'health_status': 'Good',
+                    'confidence': 0.84
+                },
+                'image_properties': {
+                    'format': file.mimetype or 'image/jpeg',
+                    'resolution': '1024x768',
+                    'file_size_kb': round(len(file.read()) / 1024, 2),
+                    'quality_score': 0.9
+                },
+                'recommendations': {
+                    'immediate_actions': ['Inspect field section', 'Isolate affected area'],
+                    'monitoring_advice': ['Recheck in 3 days'],
+                    'preventive_measures': ['Improve field sanitation']
+                },
+                'analysis_metadata': {
+                    'model_version': 'disease-ai-sim-1.0',
+                    'processing_time_ms': 1200,
+                    'analysis_timestamp': datetime.utcnow().isoformat() + 'Z',
+                    'accuracy_estimate': 0.82
+                }
+            }
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({'error': 'Image analysis failed', 'message': str(e)}), 500
+
+    @app.route('/api/image-analysis/crop-types', methods=['GET'])
+    def image_analysis_crop_types():
+        from datetime import datetime
+        return jsonify({
+            'status': 'ok',
+            'supported_crops': {
+                'Rice': {'common_diseases': ['Blast','Bacterial Leaf Blight'], 'season': 'Kharif'},
+                'Wheat': {'common_diseases': ['Rust','Powdery Mildew'], 'season': 'Rabi'},
+                'Maize': {'common_diseases': ['Leaf Blight','Downy Mildew'], 'season': 'Kharif'},
+                'Tomato': {'common_diseases': ['Late Blight','Leaf Curl'], 'season': 'All'},
+                'General': {'common_diseases': ['Leaf Spot','Pest Damage'], 'season': 'All'}
+            },
+            'total_crops': 5,
+            'detectable_diseases': {
+                'Leaf Spot': {
+                    'description': 'Spots on leaves due to fungi/bacteria',
+                    'confidence_threshold': 0.5,
+                    'recommended_actions': ['Remove infected leaves','Improve ventilation']
+                }
+            },
+            'total_diseases': 10,
+            'timestamp': datetime.utcnow().isoformat() + 'Z'
+        })
+
+    @app.route('/api/image-analysis/disease-info/<name>', methods=['GET'])
+    def image_analysis_disease_info(name):
+        from datetime import datetime
+        return jsonify({
+            'status': 'ok',
+            'disease_name': name,
+            'disease_info': {
+                'description': f'Information about {name}',
+                'confidence_threshold': 0.5,
+                'recommended_actions': ['Standard agricultural best practices']
+            },
+            'commonly_affected_crops': ['General'],
+            'prevention_tips': ['Rotate crops','Use certified seeds'],
+            'timestamp': datetime.utcnow().isoformat() + 'Z'
+        })
+
+    # Simple upload simulation for hyperspectral upload flow
+    @app.route('/api/images/upload', methods=['POST'])
+    def images_upload():
+        from datetime import datetime
+        import uuid
+        file = request.files.get('file') or request.files.get('image')
+        if not file:
+            return jsonify({'error': 'No file provided'}), 400
+        job_id = str(uuid.uuid4())
+        return jsonify({
+            'message': 'Upload received',
+            'job_id': job_id,
+            'estimated_processing_time': 5
+        })
+
+    @app.route('/api/images/status/<job_id>', methods=['GET'])
+    def images_status(job_id):
+        from datetime import datetime
+        # Always return completed with a demo result
+        return jsonify({
+            'job_id': job_id,
+            'status': 'completed',
+            'progress': 100,
+            'result': {
+                'image_id': 1,
+                'filename': 'uploaded.jpg',
+                'indices': {
+                    'ndvi': 0.72,
+                    'savi': 0.65,
+                    'evi': 0.58,
+                    'mcari': 0.12,
+                    'red_edge_position': 705
+                },
+                'analysis_results': {
+                    'processing_status': 'completed',
+                    'health_assessment': {
+                        'overall_health': 'Good',
+                        'stress_indicators': 'Low',
+                        'vegetation_coverage': 'High'
+                    }
+                }
+            }
+        })
+
 # Add error handlers if not in full mode
 if not hasattr(app, '_full_app_loaded'):
     @app.errorhandler(404)
