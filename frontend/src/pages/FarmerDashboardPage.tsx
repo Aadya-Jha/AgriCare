@@ -9,7 +9,7 @@ import ImageAnalysisResultsPanel from '../components/ImageAnalysisResultsPanel';
 import AllIndiaCropRecommendations from '../components/AllIndiaCropRecommendations';
 import { useRealTimeDashboard, useRealTimeTrends } from '../hooks/useApi';
 import { ImageAnalysisResult } from '../services/api';
-import { Truck, Map, Zap, BarChart3, Brain, Bug, Globe, Volume2, VolumeX, Languages, TrendingUp, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Truck, Map, Zap, BarChart3, Brain, Bug, Globe, Volume2, VolumeX, Languages, TrendingUp, AlertTriangle, RefreshCw, Microscope } from 'lucide-react';
 
 // All Indian states data is now handled in AllIndiaCropRecommendations component
 
@@ -36,6 +36,7 @@ export const FarmerDashboardPage: React.FC = () => {
   const [selectedLanguage, setSelectedLanguage] = useState<string>('en');
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [currentDiseaseAnalysis, setCurrentDiseaseAnalysis] = useState<ImageAnalysisResult | null>(null);
+  const [analysisMode, setAnalysisMode] = useState<'disease' | 'hyperspectral'>('disease');
 
   // API hooks for real-time data
   const { data: summary, loading: loadingSummary, error: summaryError, refetch: refetchSummary } = useRealTimeDashboard(300000); // 5 minutes
@@ -453,35 +454,65 @@ export const FarmerDashboardPage: React.FC = () => {
               <div className="card" style={{backgroundColor: 'var(--agricare-light)', border: '1px solid var(--agricare-sage)'}}>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-semibold flex items-center space-x-2">
-                    <Brain className="h-6 w-6" />
-                    <span>AI Crop Disease Analysis • एआई फसल रोग विश्लेषण</span>
+                    {analysisMode === 'disease' ? <Brain className="h-6 w-6" /> : <Microscope className="h-6 w-6" />}
+                    <span>
+                      {analysisMode === 'disease' 
+                        ? 'AI Crop Disease Analysis • एआई फसल रोग विश्लेषण' 
+                        : 'Hyperspectral Analysis • हाइपरस्पेक्ट्रल विश्लेषण'}
+                    </span>
                   </h2>
-                  <button
-                    onClick={() => speak('Upload a photo of your crop to get instant AI-powered disease detection and treatment recommendations')}
-                    className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
-                  >
-                    <Volume2 className="h-4 w-4" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setAnalysisMode('disease')}
+                      className={`px-3 py-1 rounded text-sm ${analysisMode === 'disease' ? 'bg-green-600 text-white' : 'bg-white text-gray-700 border'}`}
+                      title="Disease analysis"
+                    >Disease</button>
+                    <button
+                      onClick={() => setAnalysisMode('hyperspectral')}
+                      className={`px-3 py-1 rounded text-sm ${analysisMode === 'hyperspectral' ? 'bg-purple-600 text-white' : 'bg-white text-gray-700 border'}`}
+                      title="Hyperspectral analysis"
+                    >Hyperspectral</button>
+                    <button
+                      onClick={() => speak(analysisMode === 'disease' 
+                        ? 'Upload a photo of your crop to get instant AI-powered disease detection and treatment recommendations'
+                        : 'Upload an image to generate simulated hyperspectral health indicators and vegetation indices')}
+                      className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
+                    >
+                      <Volume2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div>
                     <AgricultureImageUpload 
                       onAnalysisComplete={handleDiseaseAnalysisComplete}
-                      analysisType="disease"
+                      analysisType={analysisMode}
                     />
                   </div>
                   
                   <div className="space-y-4">
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                      <h3 className="font-semibold text-green-800 mb-2">How to Use • कैसे उपयोग करें</h3>
-                      <ul className="text-sm text-green-700 space-y-1">
-                        <li>• Take clear photos of affected crop leaves</li>
-                        <li>• Upload the image using the button above</li>
-                        <li>• Get instant AI analysis and recommendations</li>
-                        <li>• Follow treatment suggestions for better crop health</li>
-                      </ul>
-                    </div>
+                    {analysisMode === 'disease' ? (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <h3 className="font-semibold text-green-800 mb-2">How to Use • कैसे उपयोग करें</h3>
+                        <ul className="text-sm text-green-700 space-y-1">
+                          <li>• Take clear photos of affected crop leaves</li>
+                          <li>• Upload the image using the button above</li>
+                          <li>• Get instant AI analysis and recommendations</li>
+                          <li>• Follow treatment suggestions for better crop health</li>
+                        </ul>
+                      </div>
+                    ) : (
+                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                        <h3 className="font-semibold text-purple-800 mb-2">How to Use • कैसे उपयोग करें</h3>
+                        <ul className="text-sm text-purple-700 space-y-1">
+                          <li>• Upload a clear image of the crop canopy</li>
+                          <li>• System converts RGB to simulated hyperspectral bands</li>
+                          <li>• View health score and vegetation indices (NDVI, SAVI, EVI)</li>
+                          <li>• Use insights to guide irrigation and nutrition</li>
+                        </ul>
+                      </div>
+                    )}
                     
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                       <h3 className="font-semibold text-blue-800 mb-2">Supported Crops • समर्थित फसलें</h3>
@@ -501,7 +532,7 @@ export const FarmerDashboardPage: React.FC = () => {
                   <div className="mt-6">
                     <ImageAnalysisResultsPanel 
                       result={currentDiseaseAnalysis}
-                      analysisType="disease"
+                      analysisType={analysisMode}
                     />
                   </div>
                 )}
