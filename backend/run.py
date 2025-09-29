@@ -682,6 +682,50 @@ if not hasattr(app, '_full_app_loaded'):
             'matlab_available': False
         })
 
+    @app.route('/api/hyperspectral/predictions', methods=['GET'])
+    def hyperspectral_predictions():
+        from datetime import datetime
+        import random
+        locations = ['Anand','Jhagdia','Kota','Maddur','Talala']
+        preds = {}
+        for loc in locations:
+            score = round(random.uniform(0.4, 0.95), 2)
+            preds[loc] = {
+                'location': loc,
+                'coordinates': [23.0 + random.random(), 77.0 + random.random()],
+                'state': 'Demo',
+                'climate': 'Semi-arid',
+                'major_crops': ['Wheat','Cotton','Maize'],
+                'health_metrics': {
+                    'overall_health_score': score,
+                    'ndvi': round(random.uniform(0.3, 0.8), 2),
+                    'savi': round(random.uniform(0.2, 0.7), 2),
+                    'evi': round(random.uniform(0.2, 0.6), 2),
+                    'water_stress_index': round(random.uniform(0.2, 0.7), 2),
+                    'chlorophyll_content': round(random.uniform(0.4, 0.9), 2),
+                    'predicted_yield': round(random.uniform(0.8, 1.3), 2),
+                    'pest_risk_score': round(random.uniform(0.1, 0.7), 2),
+                    'disease_risk_score': round(random.uniform(0.1, 0.7), 2),
+                    'recommendations': ['Irrigate lightly', 'Monitor pests']
+                },
+                'analysis_timestamp': datetime.utcnow().isoformat() + 'Z'
+            }
+        return jsonify({
+            'status': 'ok',
+            'predictions': preds,
+            'model_info': {
+                'wavelengths': [400, 700, 900, 1100, 1600, 2200],
+                'num_bands': 424,
+                'locations_analyzed': locations
+            },
+            'analysis_timestamp': datetime.utcnow().isoformat() + 'Z',
+            'note': 'Simulated predictions'
+        })
+
+    @app.route('/api/hyperspectral/predict-all', methods=['GET'])
+    def hyperspectral_predict_all():
+        return hyperspectral_predictions()
+
 # Add error handlers if not in full mode
 if not hasattr(app, '_full_app_loaded'):
     @app.errorhandler(404)
