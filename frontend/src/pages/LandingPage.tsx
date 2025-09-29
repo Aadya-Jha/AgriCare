@@ -178,8 +178,8 @@ const LandingPage: React.FC = () => {
             
             <FeatureCard
               icon={<Leaf className="w-8 h-8" />}
-              title="Karnataka Crop Recommendations"
-              description="Specialized recommendations for 8 Karnataka locations with weather-based suitability scoring for 10+ crops."
+              title="State-specific Crop Recommendations"
+              description="Personalized crop suggestions for your state with weather-aware suitability scores across multiple crops."
               delay="400ms"
             />
             
