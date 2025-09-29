@@ -157,8 +157,12 @@ if not hasattr(app, '_full_app_loaded'):
         
         @app.route('/<path:path>')
         def serve_react_routes(path):
-            """Serve React Router routes and non-/static files from build root"""
-            # Try to serve the file if it exists in the build root
+            """Serve React Router routes"""
+            # If this looks like an API route, let the API routes handle it
+            if path.startswith('api/'):
+                from flask import abort
+                return abort(404)
+            # Try to serve the file if it exists in build root
             try:
                 return send_from_directory(frontend_build_path, path)
             except:
