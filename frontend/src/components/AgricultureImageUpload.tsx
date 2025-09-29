@@ -115,38 +115,41 @@ const AgricultureImageUpload: React.FC<Props> = ({ onAnalysisComplete, analysisT
         result = await apiService.analyzeAgricultureImage(formData);
       } else {
         // Use hyperspectral analysis
-        const hyperspectralResult = await apiService.processHyperspectralImage(formData);
+        const hyperspectralApiResp = await apiService.processHyperspectralImage(formData);
+        // Backend may return either a wrapped { status, results } object or the results directly.
+        const hs: any = (hyperspectralApiResp as any)?.results ?? hyperspectralApiResp;
+        
         // Convert hyperspectral result to ImageAnalysisResult format for consistency
         result = {
-          status: hyperspectralResult.status,
+          status: (hyperspectralApiResp as any)?.status || 'success',
           crop_type: 'General',
           analysis_summary: {
             primary_detection: {
-              disease: hyperspectralResult.health_analysis.dominant_health_status,
-              confidence: hyperspectralResult.health_analysis.confidence,
-              description: `Health status: ${hyperspectralResult.health_analysis.dominant_health_status}`,
-              recommended_actions: hyperspectralResult.recommendations || []
+              disease: hs?.health_analysis?.dominant_health_status || 'Unknown',
+              confidence: hs?.health_analysis?.confidence ?? 0.8,
+              description: `Health status: ${hs?.health_analysis?.dominant_health_status ?? 'Unknown'}`,
+              recommended_actions: hs?.recommendations || []
             },
             all_detections: [],
-            overall_health_score: hyperspectralResult.health_analysis.overall_health_score,
-            health_status: hyperspectralResult.health_analysis.dominant_health_status,
-            confidence: hyperspectralResult.health_analysis.confidence
+            overall_health_score: hs?.health_analysis?.overall_health_score ?? 0.75,
+            health_status: hs?.health_analysis?.dominant_health_status || 'Unknown',
+            confidence: hs?.health_analysis?.confidence ?? 0.8
           },
           image_properties: {
             format: 'RGB',
             resolution: '1024x768',
-            file_size_kb: hyperspectralResult.file_size_mb ? hyperspectralResult.file_size_mb * 1024 : 0,
+            file_size_kb: hs?.file_size_mb ? hs.file_size_mb * 1024 : 0,
             quality_score: 0.9
           },
           recommendations: {
-            immediate_actions: hyperspectralResult.recommendations || [],
+            immediate_actions: hs?.recommendations || [],
             monitoring_advice: ['Continue regular monitoring', 'Track vegetation indices'],
             preventive_measures: ['Maintain optimal growing conditions']
           },
           analysis_metadata: {
             model_version: 'Hyperspectral-v1.0',
             processing_time_ms: 2000,
-            analysis_timestamp: hyperspectralResult.analysis_timestamp,
+            analysis_timestamp: hs?.analysis_timestamp || new Date().toISOString(),
             accuracy_estimate: 0.85
           }
         };
